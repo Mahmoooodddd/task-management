@@ -40,14 +40,14 @@ func (s *service) Login(params LoginParams) (apiResponse response.ApiResponse, s
 	}
 	err = s.passwordEncoder.CompareHashAndPassword(userModel.Password, params.Password)
 	if err != nil {
-		return response.Error("something went wrong", http.StatusInternalServerError, nil)
+		return response.Error("something went wrong", http.StatusUnauthorized, nil)
 	}
 	getTokenParams := platform.GetTokenParams{
 		Email: userModel.Email,
 	}
 	token, err := s.jwtHandler.GetToken(getTokenParams)
 	if err != nil {
-		return response.Error("something went wrong", http.StatusInternalServerError, nil)
+		return response.Error("something went wrong", http.StatusUnauthorized, nil)
 	}
 	res := LoginResponse{
 		Token: token,
