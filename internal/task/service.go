@@ -84,7 +84,7 @@ func (s *service) UpdateIsDeleted(u *user.User,params ChangeTaskToDeletedParams)
 
 func (s *service) GetUserTaskList( u *user.User,params GetUserTasksListParams) (apiResponse response.ApiResponse, statusCode int) {
 	tasks, err := s.taskRepository.GetUserTaskList(params.Description, u.ID)
-	fmt.Println(err)
+	fmt.Println("==============================",err)
 	if err != nil {
 		return response.Error("something went wrong", http.StatusInternalServerError, nil)
 	}

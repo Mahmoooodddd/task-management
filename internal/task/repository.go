@@ -18,13 +18,13 @@ type taskRepository struct {
 }
 
 type Task struct {
-	ID          int64     `json:"id"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
-	UserId      int64     `json:"userId"`
-	IsDone      bool      `json:"isDone"`
-	IsDeleted   bool      `json:"isDeleted"`
+	ID          int64     `db:"id"`
+	Description string    `db:"description"`
+	CreatedAt   time.Time `db:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at"`
+	UserId      int64     `db:"user_id"`
+	IsDone      bool      `db:"is_done"`
+	IsDeleted   bool      `db:"is_deleted"`
 }
 
 func (tr *taskRepository) CreateTask(task Task) (id int64, err error) {
@@ -57,7 +57,7 @@ func (tr *taskRepository) UpdateIsDeleted(ID int64, isDeleted bool) error {
 func (tr *taskRepository) GetUserTaskList(description string, userID int64) ([]Task, error) {
 	tasks := []Task{}
 	sqlStr := "SELECT * from tasks where user_id=?"
-	rows,err := tr.dbClient.Query(sqlStr,userID)
+	rows, err := tr.dbClient.Query(sqlStr, userID)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -68,10 +68,10 @@ func (tr *taskRepository) GetUserTaskList(description string, userID int64) ([]T
 			&t.Description,
 			&t.CreatedAt,
 			&t.UpdatedAt,
-			&t.UserId,
 			&t.IsDone,
 			&t.IsDeleted,
-			); err != nil {
+			&t.UserId,
+		); err != nil {
 			return tasks, err
 		}
 		tasks = append(tasks, t)
