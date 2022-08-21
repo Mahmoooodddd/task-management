@@ -56,27 +56,11 @@ func (tr *taskRepository) UpdateIsDeleted(ID int64, isDeleted bool) error {
 
 func (tr *taskRepository) GetUserTaskList(description string, userID int64) ([]Task, error) {
 	tasks := []Task{}
-	sqlStr := "SELECT * from tasks where user_id=?"
-	rows, err := tr.dbClient.Query(sqlStr, userID)
+	err := tr.dbClient.Select(&tasks,`SELECT * from tasks where user_id=?`, userID)
 	if err != nil {
 		fmt.Println(err)
 	}
-	for rows.Next() {
-		t := Task{}
-		if err := rows.Scan(
-			&t.ID,
-			&t.Description,
-			&t.CreatedAt,
-			&t.UpdatedAt,
-			&t.IsDone,
-			&t.IsDeleted,
-			&t.UserId,
-		); err != nil {
-			return tasks, err
-		}
-		tasks = append(tasks, t)
-	}
-
+	fmt.Println(tasks)
 	return tasks, err
 }
 
