@@ -85,7 +85,7 @@
         <entry file="file://$PROJECT_DIR$/internal/task/repository.go">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="352">
-              <caret line="62" column="19" lean-forward="true" selection-start-line="62" selection-end-line="63" />
+              <caret line="62" selection-start-line="62" selection-end-line="62" />
               <folding>
                 <element signature="e#14#66#0" expanded="true" />
               </folding>
@@ -105,8 +105,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/internal/task/service.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="281">
-              <caret line="91" column="30" selection-start-line="91" selection-start-column="25" selection-end-line="91" selection-end-column="30" />
+            <state relative-caret-position="356">
+              <caret line="95" column="24" selection-start-line="95" selection-start-column="21" selection-end-line="95" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -156,8 +156,8 @@
         <option value="$PROJECT_DIR$/internal/api/httpserver.go" />
         <option value="$PROJECT_DIR$/internal/api/handler/task.go" />
         <option value="$PROJECT_DIR$/test/auth_test.go" />
-        <option value="$PROJECT_DIR$/internal/task/service.go" />
         <option value="$PROJECT_DIR$/test/task_test.go" />
+        <option value="$PROJECT_DIR$/internal/task/service.go" />
         <option value="$PROJECT_DIR$/internal/task/repository.go" />
       </list>
     </option>
@@ -585,15 +585,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/internal/task/service.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="281">
-          <caret line="91" column="30" selection-start-line="91" selection-start-column="25" selection-end-line="91" selection-end-column="30" />
+        <state relative-caret-position="356">
+          <caret line="95" column="24" selection-start-line="95" selection-start-column="21" selection-end-line="95" selection-end-column="24" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/internal/task/repository.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="352">
-          <caret line="62" column="19" lean-forward="true" selection-start-line="62" selection-end-line="63" />
+          <caret line="62" selection-start-line="62" selection-end-line="62" />
           <folding>
             <element signature="e#14#66#0" expanded="true" />
           </folding>

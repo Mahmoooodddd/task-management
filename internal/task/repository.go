@@ -60,7 +60,6 @@ func (tr *taskRepository) GetUserTaskList(description string, userID int64) ([]T
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(tasks)
 	return tasks, err
 }
 
