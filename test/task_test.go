@@ -61,9 +61,10 @@ func (t TaskTests) TestUpdateIsDone() {
 		Data    interface{}
 	}{}
 	err = json.Unmarshal(res.Body.Bytes(), &result)
-	if err != nil {
-		t.Fail(err.Error())
-	}
+	//if err != nil {
+	//	t.Fail(err.Error())
+	//}
+	assert.Nil(t.T(), err)
 	assert.Equal(t.T(), http.StatusOK, res.Code)
 	assert.Equal(t.T(), "", result.Message)
 	assert.Nil(t.T(), err)
@@ -80,7 +81,6 @@ func (t TaskTests) TestUpdateIsDone() {
 	httpServer.GetEngine().ServeHTTP(res, req)
 	assert.Equal(t.T(), http.StatusOK, res.Code)
 	assert.Equal(t.T(), "", result.Message)
-	assert.Nil(t.T(), err)
 	updateTask = task.Task{}
 	err = db.Get(&updateTask, `SELECT * from tasks where id=? limit 1`, taskId)
 	assert.Nil(t.T(), err)
@@ -94,6 +94,7 @@ func (t TaskTests) TestUpdateIsDeleted() {
 	userActor := getUserActor()
 	taskModel, err := db.Exec(`INSERT INTO tasks(description, created_at,updated_at,user_id,is_done,is_deleted) VALUES(?,?,?,?,?,?)`,
 		"deletedTest", time.Now(), time.Now(), userActor.ID, false, false)
+	assert.Nil(t.T(), err)
 	taskId, err := taskModel.LastInsertId()
 	data := fmt.Sprintf(`{ "id":%d,"isDeleted":true}`, taskId)
 	res := httptest.NewRecorder()
@@ -108,12 +109,12 @@ func (t TaskTests) TestUpdateIsDeleted() {
 		Data    interface{}
 	}{}
 	err = json.Unmarshal(res.Body.Bytes(), &result)
-	if err != nil {
-		t.Fail(err.Error())
-	}
+	//if err != nil {
+	//	t.Fail(err.Error())
+	//}
+	assert.Nil(t.T(), err)
 	assert.Equal(t.T(), http.StatusOK, res.Code)
 	assert.Equal(t.T(), "", result.Message)
-	assert.Nil(t.T(), err)
 	updateTask := task.Task{}
 	err = db.Get(&updateTask, `SELECT * from tasks where id=? limit 1`, taskId)
 	assert.Nil(t.T(), err)
@@ -139,8 +140,6 @@ func (t TaskTests) TestCreateTask() {
 	httpServer := api.NewHttpServer()
 	db := getDB()
 	userActor := getUserActor()
-	//_, err := db.Exec(`INSERT INTO tasks(description, created_at,updated_at,user_id,is_done,is_deleted) VALUES(?,?,?,?,?,?)`,
-	//	"new-test", time.Now(), time.Now(), userActor.ID, false, false)
 	data := `{"description":"new-test"}`
 	res := httptest.NewRecorder()
 	body := []byte(data)
@@ -154,13 +153,13 @@ func (t TaskTests) TestCreateTask() {
 		Data    task.CreateTaskResponse
 	}{}
 	err := json.Unmarshal(res.Body.Bytes(), &result)
-	if err != nil {
-		t.Fail(err.Error())
-	}
+	//if err != nil {
+	//	t.Fail(err.Error())
+	//}
+	assert.Nil(t.T(), err)
 	assert.Equal(t.T(), http.StatusOK, res.Code)
 	assert.Equal(t.T(), "", result.Message)
 	assert.NotEqual(t.T(), 0, result.Data.ID)
-	assert.Nil(t.T(), err)
 	createTask := task.Task{}
 	err = db.Get(&createTask, `SELECT * from tasks where description = "new-test" limit 1`)
 	assert.Nil(t.T(), err)
@@ -178,8 +177,6 @@ func (t TaskTests) TestGetTaskUserList() {
 		3,"first-test", time.Now(), time.Now(), userActor.ID, false, false)
 	_, err = db.Exec(`INSERT INTO tasks(id,description, created_at,updated_at,user_id,is_done,is_deleted) VALUES(?,?,?,?,?,?,?)`,
 		4,"second-test", time.Now(), time.Now(), userActor.ID, true, true)
-	//firstTaskId, err := firstTask.LastInsertId()
-	//SecondTaskId, err := secondTask.LastInsertId()
 	assert.Nil(t.T(), err)
 	res := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/task/list", nil)
@@ -193,17 +190,18 @@ func (t TaskTests) TestGetTaskUserList() {
 		Data    []task.SingleGetUserTaskListRes
 	}{}
 	err = json.Unmarshal(res.Body.Bytes(), &result)
-	if err != nil {
-		t.Fail(err.Error())
-	}
-	fmt.Println("==============================",err)
+	assert.Nil(t.T(), err)
+	//
+	//if err != nil {
+	//	t.Fail(err.Error())
+	//}
 	assert.Equal(t.T(), "", result.Message)
 	assert.Equal(t.T(), 2, len(result.Data))
-	assert.Equal(t.T(), int64(3), result.Data[0].ID)
+	//assert.Equal(t.T(), int64(3), result.Data[0].ID)
+	assert.Greater(t.T(),result.Data[0].ID,int64(0))
 	assert.Equal(t.T(), "first-test", result.Data[0].Description)
 	assert.Equal(t.T(), false, result.Data[0].IsDone)
-	assert.Equal(t.T(), int64(4), result.Data[1].ID)
+	assert.Greater(t.T(),result.Data[1].ID,int64(0))
 	assert.Equal(t.T(), "second-test", result.Data[1].Description)
 	assert.Equal(t.T(), true, result.Data[1].IsDone)
-	assert.Nil(t.T(), err)
 }
