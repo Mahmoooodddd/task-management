@@ -2,6 +2,7 @@ package di
 
 import (
 	"github.com/jmoiron/sqlx"
+	"task-management/config"
 	"task-management/internal/auth"
 	"task-management/internal/platform"
 	"task-management/internal/task"
@@ -17,6 +18,7 @@ type container struct {
 	taskRepository  task.TaskRepository
 	taskService     task.Service
 	jwtHandler      platform.JWTHandler
+	configs          platform.Configs
 }
 
 func (c *container) GetAuthService() auth.Service {
@@ -24,7 +26,7 @@ func (c *container) GetAuthService() auth.Service {
 		userService := c.GetUserService()
 		passwordEncoder := c.GetPasswordEncoder()
 		jwtHandler := c.GetJwtHandler()
-		authService := auth.NewAuthService(userService, passwordEncoder,jwtHandler)
+		authService := auth.NewAuthService(userService, passwordEncoder, jwtHandler)
 		c.authService = authService
 	}
 	return c.authService
@@ -47,9 +49,19 @@ func (c *container) GetPasswordEncoder() platform.PasswordEncoder {
 	return c.passwordEncoder
 }
 
+func (c *container) GetConfig() platform.Configs {
+	if c.configs == nil {
+		viper := config.SetConfigs()
+		configs := platform.NewConfigs(viper)
+		c.configs = configs
+	}
+	return c.configs
+}
+
 func (c *container) GetDbClient() *sqlx.DB {
 	if c.dbClient == nil {
-		dbClient := platform.NewDBClient()
+		configs := c.GetConfig()
+		dbClient := platform.NewDBClient(configs)
 		c.dbClient = dbClient
 	}
 	return c.dbClient

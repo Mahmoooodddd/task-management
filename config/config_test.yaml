@@ -1,0 +1,11 @@
+task-management:
+  environment: "test"
+  domain: "http://localhost:8000"
+
+database:
+  driver: "mysql"
+  host: "localhost"
+  port: 3306
+  dbName: "task_management_test"
+  username: "task_management_user"
+  password: "task_management_pass"
