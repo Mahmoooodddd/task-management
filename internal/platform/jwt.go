@@ -1,7 +1,6 @@
 package platform
 
 import (
-	"flag"
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/ssh"
@@ -79,18 +78,14 @@ func (jwtHandler *jwtHandler) GetUsernameFromToken(signedToken string) (string, 
 	return "", err
 }
 
-func NewJWTHandler() JWTHandler {
-	privateKeyPath := "config/jwt/private.pem"
-	publicKeyPath := "config/jwt/public.pem"
-	if flag.Lookup("test.v") != nil {
-		privateKeyPath = "../config/jwt/private.pem"
-		publicKeyPath = "../config/jwt/public.pem"
-	}
+func NewJWTHandler(c Configs) JWTHandler {
+	privateKeyPath := c.GetString("jwt.privateKeyPath")
+	publicKeyPath := c.GetString("jwt.publicKeyPath")
 	privateKey, err := ioutil.ReadFile(privateKeyPath)
 	if err != nil {
 		panic(err)
 	}
-
+	
 	publicKey, err := ioutil.ReadFile(publicKeyPath)
 	if err != nil {
 		panic(err)

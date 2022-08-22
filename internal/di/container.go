@@ -96,7 +96,8 @@ func (c *container) GetTaskService() task.Service {
 
 func (c *container) GetJwtHandler() platform.JWTHandler {
 	if c.jwtHandler == nil {
-		jwtHandler := platform.NewJWTHandler()
+		configs := c.GetConfig()
+		jwtHandler := platform.NewJWTHandler(configs)
 		c.jwtHandler = jwtHandler
 	}
 	return c.jwtHandler

@@ -9,3 +9,7 @@ database:
   dbName: "task_management_test"
   username: "task_management_user"
   password: "task_management_pass"
+
+jwt:
+  privateKeyPath: "../config/jwt/private.pem"
+  publicKeyPath: "../config/jwt/public.pem"
