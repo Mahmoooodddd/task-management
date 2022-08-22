@@ -8,10 +8,10 @@ import (
 )
 
 type Service interface {
-	CreateTask(u *user.User,params CreateTaskParams) (apiResponse response.ApiResponse, statusCode int)
-	UpdateIsDone(u *user.User,params ChangeTaskToDoneParams) (apiResponse response.ApiResponse, statusCode int)
-	UpdateIsDeleted(u *user.User,params ChangeTaskToDeletedParams) (apiResponse response.ApiResponse, statusCode int)
-	GetUserTaskList(u *user.User,params GetUserTasksListParams) (apiResponse response.ApiResponse, statusCode int)
+	CreateTask(u *user.User, params CreateTaskParams) (apiResponse response.ApiResponse, statusCode int)
+	UpdateIsDone(u *user.User, params ChangeTaskToDoneParams) (apiResponse response.ApiResponse, statusCode int)
+	UpdateIsDeleted(u *user.User, params ChangeTaskToDeletedParams) (apiResponse response.ApiResponse, statusCode int)
+	GetUserTaskList(u *user.User, params GetUserTasksListParams) (apiResponse response.ApiResponse, statusCode int)
 }
 
 type service struct {
@@ -46,7 +46,7 @@ type SingleGetUserTaskListRes struct {
 	IsDone      bool   `json:"isDone"`
 }
 
-func (s *service) CreateTask(u *user.User,params CreateTaskParams) (apiResponse response.ApiResponse, statusCode int) {
+func (s *service) CreateTask(u *user.User, params CreateTaskParams) (apiResponse response.ApiResponse, statusCode int) {
 	task := Task{
 		Description: params.Description,
 		CreatedAt:   time.Now(),
@@ -65,15 +65,22 @@ func (s *service) CreateTask(u *user.User,params CreateTaskParams) (apiResponse 
 	return response.Success(res, "")
 }
 
-func (s *service) UpdateIsDone(u *user.User,params ChangeTaskToDoneParams) (apiResponse response.ApiResponse, statusCode int) {
-	err := s.taskRepository.UpdateIsDone(params.ID, params.IsDone)
+func (s *service) UpdateIsDone(u *user.User, params ChangeTaskToDoneParams) (apiResponse response.ApiResponse, statusCode int) {
+	task, err := s.taskRepository.GetTaskByID(params.ID)
+	if err != nil {
+		return response.Error("Not Found", http.StatusNotFound, nil)
+	}
+	if task.UserId != u.ID {
+		return response.Error("Not Found", http.StatusNotFound, nil)
+	}
+	err = s.taskRepository.UpdateIsDone(params.ID, params.IsDone)
 	if err != nil {
 		return response.Error("something went wrong", http.StatusInternalServerError, nil)
 	}
 	return response.Success(nil, "")
 }
 
-func (s *service) UpdateIsDeleted(u *user.User,params ChangeTaskToDeletedParams) (apiResponse response.ApiResponse, statusCode int) {
+func (s *service) UpdateIsDeleted(u *user.User, params ChangeTaskToDeletedParams) (apiResponse response.ApiResponse, statusCode int) {
 	err := s.taskRepository.UpdateIsDeleted(params.ID, params.IsDeleted)
 	if err != nil {
 		return response.Error("something went wrong", http.StatusInternalServerError, nil)
@@ -81,7 +88,7 @@ func (s *service) UpdateIsDeleted(u *user.User,params ChangeTaskToDeletedParams)
 	return response.Success(nil, "")
 }
 
-func (s *service) GetUserTaskList( u *user.User,params GetUserTasksListParams) (apiResponse response.ApiResponse, statusCode int) {
+func (s *service) GetUserTaskList(u *user.User, params GetUserTasksListParams) (apiResponse response.ApiResponse, statusCode int) {
 	tasks, err := s.taskRepository.GetUserTaskList(params.Description, u.ID)
 	if err != nil {
 		return response.Error("something went wrong", http.StatusInternalServerError, nil)

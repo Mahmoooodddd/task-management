@@ -28,3 +28,9 @@ func (tr *TaskRepository) GetUserTaskList(description string,userID int64) ([]ta
 	args := tr.Called(description,userID)
 	return args.Get(0).([]task.Task), args.Error(1)
 }
+
+func (tr *TaskRepository) GetTaskByID(ID int64) (task.Task,error)  {
+	args := tr.Called(ID)
+	return args.Get(0).(task.Task),args.Error(1)
+
+}

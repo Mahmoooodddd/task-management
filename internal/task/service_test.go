@@ -30,14 +30,13 @@ func TestService_GetUserTaskList_Success(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
 	tasksRes := []task.Task{
 		{
-			ID: 1,
-			Description:"test",
-			IsDone:false,
-
+			ID:          1,
+			Description: "test",
+			IsDone:      false,
 		}, {
-			ID: 2,
-			Description:"test2",
-			IsDone:true,
+			ID:          2,
+			Description: "test2",
+			IsDone:      true,
 		},
 	}
 	taskRepository.On("GetUserTaskList", "test", int64(1)).Once().Return(tasksRes, nil)
@@ -50,7 +49,7 @@ func TestService_GetUserTaskList_Success(t *testing.T) {
 		Description: "test",
 	}
 	response, statusCode := taskService.GetUserTaskList(u, params)
-	res:=response.Data.([]task.SingleGetUserTaskListRes)
+	res := response.Data.([]task.SingleGetUserTaskListRes)
 	assert.Equal(t, statusCode, 200)
 	assert.Equal(t, response.Message, "")
 	assert.Equal(t, len(res), 2)
@@ -97,8 +96,51 @@ func TestService_CreateTask_Success(t *testing.T) {
 	taskRepository.AssertExpectations(t)
 }
 
+func TestService_UpdateIsDone_GetTaskHasError(t *testing.T) {
+	taskRepository := new(mocks.TaskRepository)
+	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{},fmt.Errorf("can not get task"))
+	taskService := task.NewService(taskRepository)
+	u := &user.User{
+		ID: 1,
+	}
+	params := task.ChangeTaskToDoneParams{
+		ID:     1,
+		IsDone: false,
+	}
+	response, statusCode := taskService.UpdateIsDone(u, params)
+	assert.Equal(t, statusCode, 500)
+	assert.Equal(t, response.Message, "something went wrong")
+	taskRepository.AssertExpectations(t)
+}
+
+func TestService_UpdateIsDone_EqualUserIdHasError(t *testing.T) {
+	taskRepository := new(mocks.TaskRepository)
+	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
+		ID:     1,
+		UserId: 1,
+	}, nil)
+	taskService := task.NewService(taskRepository)
+	u := &user.User{
+		ID: 2,
+	}
+	params := task.ChangeTaskToDoneParams{
+		ID:     1,
+		IsDone: false,
+	}
+	response, statusCode := taskService.UpdateIsDone(u, params)
+	assert.Equal(t, statusCode, 500)
+	assert.Equal(t, response.Message, "something went wrong")
+	taskRepository.AssertExpectations(t)
+}
+
+
+
 func TestService_UpdateIsDone_RepoHasError(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
+		ID:     1,
+		UserId: 1,
+	}, nil)
 	taskRepository.On("UpdateIsDone", int64(1), false).Once().Return(fmt.Errorf("can not update is done"))
 	taskService := task.NewService(taskRepository)
 	u := &user.User{
@@ -116,6 +158,10 @@ func TestService_UpdateIsDone_RepoHasError(t *testing.T) {
 
 func TestService_UpdateIsDone_Success(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
+		ID:     1,
+		UserId: 1,
+	}, nil)
 	taskRepository.On("UpdateIsDone", int64(1), false).Once().Return(nil)
 	taskService := task.NewService(taskRepository)
 	u := &user.User{

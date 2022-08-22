@@ -11,6 +11,7 @@ type TaskRepository interface {
 	UpdateIsDone(ID int64, isDone bool) error
 	UpdateIsDeleted(ID int64, isDeleted bool) error
 	GetUserTaskList(description string, userID int64) ([]Task, error)
+	GetTaskByID(ID int64) (task Task, err error)
 }
 
 type taskRepository struct {
@@ -56,11 +57,19 @@ func (tr *taskRepository) UpdateIsDeleted(ID int64, isDeleted bool) error {
 
 func (tr *taskRepository) GetUserTaskList(description string, userID int64) ([]Task, error) {
 	tasks := []Task{}
-	err := tr.dbClient.Select(&tasks,`SELECT * from tasks where user_id=?`, userID)
+	err := tr.dbClient.Select(&tasks, `SELECT * from tasks where user_id=?`, userID)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return tasks, err
+}
+
+func (tr *taskRepository) GetTaskByID(ID int64) (task Task, err error) {
+	err = tr.dbClient.Get(&task, `select * from tasks where id=? LIMIT 1`, ID)
+	if err != nil {
+		return task, err
+	}
+	return task, nil
 }
 
 func NewTaskRepository(dbClient *sqlx.DB) TaskRepository {
