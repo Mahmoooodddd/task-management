@@ -4,7 +4,7 @@ import "go.uber.org/zap"
 
 const (
 	LogFilePath     = "./var/logs/task-management.log"
-	TestLogFilePath = "./var/logs/task-management.log"
+	TestLogFilePath = "../var/logs/task-management.log"
 )
 
 type Logger interface {

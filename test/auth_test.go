@@ -3,6 +3,7 @@ package test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"net/http"
@@ -29,6 +30,11 @@ func (t *AuthTests) SetupSuite() {
 }
 
 func (t *AuthTests) SetupTest() {
+	db := getDB()
+	_, err := db.Exec("DELETE FROM users")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (t *AuthTests) TearDownTest() {
