@@ -169,6 +169,39 @@ func (t TaskTests) TestUpdateIsDeleted() {
 
 }
 
+func (t TaskTests) TestUpdateIsDeleted_TaskDoesNotBelongToUser() {
+	httpServer := api.NewHttpServer()
+	db := getDB()
+	userActor := getUserActor()
+	passwordEncoder := platform.NewPasswordEncoder()
+	hashedPassword, _ := passwordEncoder.GenerateFromPassword("123456789")
+	userModel, err := db.Exec(`INSERT INTO users(email,password) VALUES(?,?)`, "testtest1@test.com", hashedPassword)
+	assert.Nil(t.T(), err)
+	userId, err := userModel.LastInsertId()
+	assert.Nil(t.T(), err)
+	taskModel, err := db.Exec(`INSERT INTO tasks(description, created_at,updated_at,user_id,is_done,is_deleted) VALUES(?,?,?,?,?,?)`,
+		"doneTest", time.Now(), time.Now(), userId, false, false)
+	taskId, err := taskModel.LastInsertId()
+	data := fmt.Sprintf(`{ "id":%d,"isDone":true}`, taskId)
+	res := httptest.NewRecorder()
+	body := []byte(data)
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/task/update-is-deleted", bytes.NewReader(body))
+	token := "Bearer " + userActor.Token
+	req.Header.Set("Authorization", token)
+	httpServer.GetEngine().ServeHTTP(res, req)
+	result := struct {
+		Status  bool
+		Message string
+		Data    interface{}
+	}{}
+	err = json.Unmarshal(res.Body.Bytes(), &result)
+	assert.Nil(t.T(), err)
+	assert.Equal(t.T(), http.StatusNotFound, res.Code)
+	assert.Equal(t.T(), "Not Found", result.Message)
+	assert.Nil(t.T(), err)
+}
+
+
 func (t TaskTests) TestCreateTask() {
 	httpServer := api.NewHttpServer()
 	db := getDB()

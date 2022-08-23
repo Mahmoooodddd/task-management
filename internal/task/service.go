@@ -81,7 +81,15 @@ func (s *service) UpdateIsDone(u *user.User, params ChangeTaskToDoneParams) (api
 }
 
 func (s *service) UpdateIsDeleted(u *user.User, params ChangeTaskToDeletedParams) (apiResponse response.ApiResponse, statusCode int) {
-	err := s.taskRepository.UpdateIsDeleted(params.ID, params.IsDeleted)
+	task, err := s.taskRepository.GetTaskByID(params.ID)
+	if err != nil {
+		return response.Error("Not Found", http.StatusNotFound, nil)
+	}
+	if task.UserId != u.ID {
+		return response.Error("Not Found", http.StatusNotFound, nil)
+	}
+
+	err = s.taskRepository.UpdateIsDeleted(params.ID, params.IsDeleted)
 	if err != nil {
 		return response.Error("something went wrong", http.StatusInternalServerError, nil)
 	}

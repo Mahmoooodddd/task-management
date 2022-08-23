@@ -108,12 +108,12 @@ func TestService_UpdateIsDone_GetTaskHasError(t *testing.T) {
 		IsDone: false,
 	}
 	response, statusCode := taskService.UpdateIsDone(u, params)
-	assert.Equal(t, statusCode, 500)
-	assert.Equal(t, response.Message, "something went wrong")
+	assert.Equal(t, statusCode, 404)
+	assert.Equal(t, response.Message, "Not Found")
 	taskRepository.AssertExpectations(t)
 }
 
-func TestService_UpdateIsDone_EqualUserIdHasError(t *testing.T) {
+func TestService_UpdateIsDone_TaskDoesNotBelongUser(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
 	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
 		ID:     1,
@@ -128,8 +128,8 @@ func TestService_UpdateIsDone_EqualUserIdHasError(t *testing.T) {
 		IsDone: false,
 	}
 	response, statusCode := taskService.UpdateIsDone(u, params)
-	assert.Equal(t, statusCode, 500)
-	assert.Equal(t, response.Message, "something went wrong")
+	assert.Equal(t, statusCode, 404)
+	assert.Equal(t, response.Message, "Not Found")
 	taskRepository.AssertExpectations(t)
 }
 
@@ -156,6 +156,27 @@ func TestService_UpdateIsDone_RepoHasError(t *testing.T) {
 	taskRepository.AssertExpectations(t)
 }
 
+func TestService_UpdateIsDeleted_TaskDoesNotBelongUser(t *testing.T) {
+	taskRepository := new(mocks.TaskRepository)
+	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
+		ID:     1,
+		UserId: 1,
+	}, nil)
+	taskService := task.NewService(taskRepository)
+	u := &user.User{
+		ID: 2,
+	}
+	params := task.ChangeTaskToDoneParams{
+		ID:     1,
+		IsDone: false,
+	}
+	response, statusCode := taskService.UpdateIsDone(u, params)
+	assert.Equal(t, statusCode, 404)
+	assert.Equal(t, response.Message, "Not Found")
+	taskRepository.AssertExpectations(t)
+}
+
+
 func TestService_UpdateIsDone_Success(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
 	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
@@ -179,6 +200,10 @@ func TestService_UpdateIsDone_Success(t *testing.T) {
 
 func TestService_UpdateIsDeleted_RepoHasError(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
+		ID:     1,
+		UserId: 1,
+	}, nil)
 	taskRepository.On("UpdateIsDeleted", int64(1), false).Once().Return(fmt.Errorf("can not update is deleted"))
 	taskService := task.NewService(taskRepository)
 	u := &user.User{
@@ -196,6 +221,10 @@ func TestService_UpdateIsDeleted_RepoHasError(t *testing.T) {
 
 func TestService_UpdateIsDeleted_Success(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
+		ID:     1,
+		UserId: 1,
+	}, nil)
 	taskRepository.On("UpdateIsDeleted", int64(1), false).Once().Return(nil)
 	taskService := task.NewService(taskRepository)
 	u := &user.User{
