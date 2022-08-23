@@ -19,6 +19,8 @@ type container struct {
 	taskService     task.Service
 	jwtHandler      platform.JWTHandler
 	configs          platform.Configs
+	logger               platform.Logger
+
 }
 
 func (c *container) GetAuthService() auth.Service {
@@ -26,7 +28,8 @@ func (c *container) GetAuthService() auth.Service {
 		userService := c.GetUserService()
 		passwordEncoder := c.GetPasswordEncoder()
 		jwtHandler := c.GetJwtHandler()
-		authService := auth.NewAuthService(userService, passwordEncoder, jwtHandler)
+		logger := c.getLogger()
+		authService := auth.NewAuthService(userService, passwordEncoder, jwtHandler,logger)
 		c.authService = authService
 	}
 	return c.authService
@@ -49,7 +52,7 @@ func (c *container) GetPasswordEncoder() platform.PasswordEncoder {
 	return c.passwordEncoder
 }
 
-func (c *container) GetConfig() platform.Configs {
+func (c *container) GetConfigs() platform.Configs {
 	if c.configs == nil {
 		viper := config.SetConfigs()
 		configs := platform.NewConfigs(viper)
@@ -60,7 +63,7 @@ func (c *container) GetConfig() platform.Configs {
 
 func (c *container) GetDbClient() *sqlx.DB {
 	if c.dbClient == nil {
-		configs := c.GetConfig()
+		configs := c.GetConfigs()
 		dbClient := platform.NewDBClient(configs)
 		c.dbClient = dbClient
 	}
@@ -88,7 +91,8 @@ func (c *container) GetTaskRepository() task.TaskRepository {
 func (c *container) GetTaskService() task.Service {
 	if c.taskService == nil {
 		taskRepository := c.GetTaskRepository()
-		taskService := task.NewService(taskRepository)
+		logger := c.getLogger()
+		taskService := task.NewService(taskRepository,logger)
 		c.taskService = taskService
 	}
 	return c.taskService
@@ -96,11 +100,20 @@ func (c *container) GetTaskService() task.Service {
 
 func (c *container) GetJwtHandler() platform.JWTHandler {
 	if c.jwtHandler == nil {
-		configs := c.GetConfig()
+		configs := c.GetConfigs()
 		jwtHandler := platform.NewJWTHandler(configs)
 		c.jwtHandler = jwtHandler
 	}
 	return c.jwtHandler
+}
+
+func (c *container) getLogger() platform.Logger {
+	if c.logger == nil {
+		configs := c.GetConfigs()
+		logger := platform.NewLogger(configs)
+		c.logger = logger
+	}
+	return c.logger
 }
 
 func NewContainer() *container {

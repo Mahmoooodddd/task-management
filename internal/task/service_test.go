@@ -12,8 +12,10 @@ import (
 
 func TestService_GetUserTaskList_RepoHasError(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	taskRepository.On("GetUserTaskList", "test", int64(1)).Once().Return([]task.Task{}, fmt.Errorf("can not show list"))
-	taskService := task.NewService(taskRepository)
+	logger.On("Error","fail to get user task list",mock.Anything,mock.Anything,mock.Anything,mock.Anything).Once().Return([]task.Task{},logger.Error)
+	taskService := task.NewService(taskRepository,logger)
 	u := &user.User{
 		ID: 1,
 	}
@@ -28,6 +30,7 @@ func TestService_GetUserTaskList_RepoHasError(t *testing.T) {
 
 func TestService_GetUserTaskList_Success(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	tasksRes := []task.Task{
 		{
 			ID:          1,
@@ -40,7 +43,7 @@ func TestService_GetUserTaskList_Success(t *testing.T) {
 		},
 	}
 	taskRepository.On("GetUserTaskList", "test", int64(1)).Once().Return(tasksRes, nil)
-	taskService := task.NewService(taskRepository)
+	taskService := task.NewService(taskRepository,logger)
 
 	u := &user.User{
 		ID: 1,
@@ -64,8 +67,10 @@ func TestService_GetUserTaskList_Success(t *testing.T) {
 
 func TestService_CreateTask_RepoHasError(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	taskRepository.On("CreateTask", mock.Anything).Once().Return(int64(0), fmt.Errorf("can not create task"))
-	taskService := task.NewService(taskRepository)
+	logger.On("Error","fail to create task",mock.Anything,mock.Anything,mock.Anything,mock.Anything).Once().Return([]task.Task{},logger.Error)
+	taskService := task.NewService(taskRepository,logger)
 	u := &user.User{
 		ID: 1,
 	}
@@ -80,8 +85,9 @@ func TestService_CreateTask_RepoHasError(t *testing.T) {
 
 func TestService_CreateTask_Success(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	taskRepository.On("CreateTask", mock.Anything).Once().Return(int64(1), nil)
-	taskService := task.NewService(taskRepository)
+	taskService := task.NewService(taskRepository,logger)
 	u := &user.User{
 		ID: 1,
 	}
@@ -98,8 +104,9 @@ func TestService_CreateTask_Success(t *testing.T) {
 
 func TestService_UpdateIsDone_GetTaskHasError(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{},fmt.Errorf("can not get task"))
-	taskService := task.NewService(taskRepository)
+	taskService := task.NewService(taskRepository,logger)
 	u := &user.User{
 		ID: 1,
 	}
@@ -115,11 +122,12 @@ func TestService_UpdateIsDone_GetTaskHasError(t *testing.T) {
 
 func TestService_UpdateIsDone_TaskDoesNotBelongUser(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
 		ID:     1,
 		UserId: 1,
 	}, nil)
-	taskService := task.NewService(taskRepository)
+	taskService := task.NewService(taskRepository,logger)
 	u := &user.User{
 		ID: 2,
 	}
@@ -137,12 +145,14 @@ func TestService_UpdateIsDone_TaskDoesNotBelongUser(t *testing.T) {
 
 func TestService_UpdateIsDone_RepoHasError(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
 		ID:     1,
 		UserId: 1,
 	}, nil)
 	taskRepository.On("UpdateIsDone", int64(1), false).Once().Return(fmt.Errorf("can not update is done"))
-	taskService := task.NewService(taskRepository)
+	logger.On("Error","fail to update is done",mock.Anything,mock.Anything,mock.Anything,mock.Anything,mock.Anything).Once().Return([]task.Task{},logger.Error)
+	taskService := task.NewService(taskRepository,logger)
 	u := &user.User{
 		ID: 1,
 	}
@@ -158,11 +168,12 @@ func TestService_UpdateIsDone_RepoHasError(t *testing.T) {
 
 func TestService_UpdateIsDeleted_TaskDoesNotBelongUser(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
 		ID:     1,
 		UserId: 1,
 	}, nil)
-	taskService := task.NewService(taskRepository)
+	taskService := task.NewService(taskRepository,logger)
 	u := &user.User{
 		ID: 2,
 	}
@@ -179,12 +190,13 @@ func TestService_UpdateIsDeleted_TaskDoesNotBelongUser(t *testing.T) {
 
 func TestService_UpdateIsDone_Success(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
 		ID:     1,
 		UserId: 1,
 	}, nil)
 	taskRepository.On("UpdateIsDone", int64(1), false).Once().Return(nil)
-	taskService := task.NewService(taskRepository)
+	taskService := task.NewService(taskRepository,logger)
 	u := &user.User{
 		ID: 1,
 	}
@@ -200,12 +212,14 @@ func TestService_UpdateIsDone_Success(t *testing.T) {
 
 func TestService_UpdateIsDeleted_RepoHasError(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
 		ID:     1,
 		UserId: 1,
 	}, nil)
 	taskRepository.On("UpdateIsDeleted", int64(1), false).Once().Return(fmt.Errorf("can not update is deleted"))
-	taskService := task.NewService(taskRepository)
+	logger.On("Error","fail to update is deleted",mock.Anything,mock.Anything,mock.Anything,mock.Anything,mock.Anything,mock.Anything).Once().Return([]task.Task{},logger.Error)
+	taskService := task.NewService(taskRepository,logger)
 	u := &user.User{
 		ID: 1,
 	}
@@ -221,12 +235,13 @@ func TestService_UpdateIsDeleted_RepoHasError(t *testing.T) {
 
 func TestService_UpdateIsDeleted_Success(t *testing.T) {
 	taskRepository := new(mocks.TaskRepository)
+	logger := new(mocks.Logger)
 	taskRepository.On("GetTaskByID", int64(1)).Once().Return(task.Task{
 		ID:     1,
 		UserId: 1,
 	}, nil)
 	taskRepository.On("UpdateIsDeleted", int64(1), false).Once().Return(nil)
-	taskService := task.NewService(taskRepository)
+	taskService := task.NewService(taskRepository,logger)
 	u := &user.User{
 		ID: 1,
 	}
