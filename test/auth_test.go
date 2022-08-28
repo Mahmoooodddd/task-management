@@ -10,7 +10,6 @@ import (
 	"net/http/httptest"
 	"task-management/internal/api"
 	"task-management/internal/auth"
-	"task-management/internal/platform"
 	"task-management/internal/response"
 	"task-management/internal/user"
 	"testing"
@@ -66,7 +65,7 @@ func (t *AuthTests) TestRegister() {
 func (t *AuthTests) TestLogin() {
 	httpServer := api.NewHttpServer()
 	db := getDB()
-	passwordEncoder := platform.NewPasswordEncoder()
+	passwordEncoder := getContainer().GetPasswordEncoder()
 	hashedPassword, _ := passwordEncoder.GenerateFromPassword("123456789")
 	_, err := db.Exec(`INSERT INTO users(email,password) VALUES(?,?)`, "test2@test.com", hashedPassword)
 	data := `{"email":"test2@test.com","password":"123456789"}`

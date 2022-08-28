@@ -12,6 +12,7 @@ import (
 	"os"
 	"task-management/internal/api"
 	"task-management/internal/auth"
+	"task-management/internal/di"
 	"task-management/internal/platform"
 	"testing"
 )
@@ -21,6 +22,15 @@ const (
 )
 
 var mainDB *sqlx.DB
+var container *di.Container
+
+func getContainer() *di.Container {
+	if container != nil {
+		return container
+	}
+	container = di.GetContainer()
+	return container
+}
 
 func getDB() *sqlx.DB {
 	if mainDB != nil {
@@ -74,7 +84,7 @@ func getUserActor() *userActor {
 	if err != nil {
 		fmt.Println("err", err)
 	}
-	id,err := result.LastInsertId()
+	id, err := result.LastInsertId()
 	res := httptest.NewRecorder()
 	data := `{"email":"test@test.com","password":"123456789"}`
 	body := []byte(data)

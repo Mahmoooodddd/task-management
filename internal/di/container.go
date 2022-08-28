@@ -9,7 +9,7 @@ import (
 	"task-management/internal/user"
 )
 
-type container struct {
+type Container struct {
 	authService     auth.Service
 	userService     user.Service
 	passwordEncoder platform.PasswordEncoder
@@ -23,7 +23,11 @@ type container struct {
 
 }
 
-func (c *container) GetAuthService() auth.Service {
+var container *Container
+
+
+
+func (c *Container) GetAuthService() auth.Service {
 	if c.authService == nil {
 		userService := c.GetUserService()
 		passwordEncoder := c.GetPasswordEncoder()
@@ -35,7 +39,7 @@ func (c *container) GetAuthService() auth.Service {
 	return c.authService
 }
 
-func (c *container) GetUserService() user.Service {
+func (c *Container) GetUserService() user.Service {
 	if c.userService == nil {
 		userRepository := c.GetUserRepository()
 		userService := user.NewService(userRepository)
@@ -44,7 +48,7 @@ func (c *container) GetUserService() user.Service {
 	return c.userService
 }
 
-func (c *container) GetPasswordEncoder() platform.PasswordEncoder {
+func (c *Container) GetPasswordEncoder() platform.PasswordEncoder {
 	if c.passwordEncoder == nil {
 		passwordEncoder := platform.NewPasswordEncoder()
 		c.passwordEncoder = passwordEncoder
@@ -52,7 +56,7 @@ func (c *container) GetPasswordEncoder() platform.PasswordEncoder {
 	return c.passwordEncoder
 }
 
-func (c *container) GetConfigs() platform.Configs {
+func (c *Container) GetConfigs() platform.Configs {
 	if c.configs == nil {
 		viper := config.SetConfigs()
 		configs := platform.NewConfigs(viper)
@@ -61,7 +65,7 @@ func (c *container) GetConfigs() platform.Configs {
 	return c.configs
 }
 
-func (c *container) GetDbClient() *sqlx.DB {
+func (c *Container) GetDbClient() *sqlx.DB {
 	if c.dbClient == nil {
 		configs := c.GetConfigs()
 		dbClient := platform.NewDBClient(configs)
@@ -70,7 +74,7 @@ func (c *container) GetDbClient() *sqlx.DB {
 	return c.dbClient
 }
 
-func (c *container) GetUserRepository() user.UserRepository {
+func (c *Container) GetUserRepository() user.UserRepository {
 	if c.userRepository == nil {
 		dbClient := c.GetDbClient()
 		userRepository := user.NewUserRepository(dbClient)
@@ -79,7 +83,7 @@ func (c *container) GetUserRepository() user.UserRepository {
 	return c.userRepository
 }
 
-func (c *container) GetTaskRepository() task.TaskRepository {
+func (c *Container) GetTaskRepository() task.TaskRepository {
 	if c.taskRepository == nil {
 		dbClient := c.GetDbClient()
 		taskRepository := task.NewTaskRepository(dbClient)
@@ -88,7 +92,7 @@ func (c *container) GetTaskRepository() task.TaskRepository {
 	return c.taskRepository
 }
 
-func (c *container) GetTaskService() task.Service {
+func (c *Container) GetTaskService() task.Service {
 	if c.taskService == nil {
 		taskRepository := c.GetTaskRepository()
 		logger := c.getLogger()
@@ -98,7 +102,7 @@ func (c *container) GetTaskService() task.Service {
 	return c.taskService
 }
 
-func (c *container) GetJwtHandler() platform.JWTHandler {
+func (c *Container) GetJwtHandler() platform.JWTHandler {
 	if c.jwtHandler == nil {
 		configs := c.GetConfigs()
 		jwtHandler := platform.NewJWTHandler(configs)
@@ -107,7 +111,7 @@ func (c *container) GetJwtHandler() platform.JWTHandler {
 	return c.jwtHandler
 }
 
-func (c *container) getLogger() platform.Logger {
+func (c *Container) getLogger() platform.Logger {
 	if c.logger == nil {
 		configs := c.GetConfigs()
 		logger := platform.NewLogger(configs)
@@ -116,6 +120,15 @@ func (c *container) getLogger() platform.Logger {
 	return c.logger
 }
 
-func NewContainer() *container {
-	return &container{}
+func newContainer() *Container {
+	return &Container{}
+}
+
+
+func GetContainer() *Container {
+	if container != nil {
+		return container
+	}
+	container = newContainer()
+	return container
 }

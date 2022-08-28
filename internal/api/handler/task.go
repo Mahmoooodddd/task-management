@@ -10,7 +10,7 @@ import (
 )
 
 func Create(c *gin.Context) {
-	container := di.NewContainer()
+	container := di.GetContainer()
 	val, _ := c.Get(middleware.UserKey)
 	u := val.(*user.User)
 	taskService := container.GetTaskService()
@@ -26,7 +26,7 @@ func Create(c *gin.Context) {
 }
 
 func UpdateIsDone(c *gin.Context) {
-	container := di.NewContainer()
+	container := di.GetContainer()
 	val, _ := c.Get(middleware.UserKey)
 	u := val.(*user.User)
 	taskService := container.GetTaskService()
@@ -42,7 +42,7 @@ func UpdateIsDone(c *gin.Context) {
 }
 
 func UpdateIsDeleted(c *gin.Context) {
-	container := di.NewContainer()
+	container := di.GetContainer()
 	val, _ := c.Get(middleware.UserKey)
 	u := val.(*user.User)
 	taskService := container.GetTaskService()
@@ -58,7 +58,7 @@ func UpdateIsDeleted(c *gin.Context) {
 }
 
 func GetUserTaskList(c *gin.Context) {
-	container := di.NewContainer()
+	container := di.GetContainer()
 	val, _ := c.Get(middleware.UserKey)
 	u := val.(*user.User)
 	taskService := container.GetTaskService()

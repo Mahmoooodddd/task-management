@@ -25,7 +25,7 @@ func AuthMiddleware(c *gin.Context) {
 	}
 
 	token := parts[1]
-	container := di.NewContainer()
+	container := di.GetContainer()
 	authService := container.GetAuthService()
 	user, err := authService.GetUser(token)
 	if err != nil {

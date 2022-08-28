@@ -9,7 +9,7 @@ import (
 
 
 func Login(c *gin.Context) {
-	container := di.NewContainer()
+	container := di.GetContainer()
 	authService := container.GetAuthService()
 	p := auth.LoginParams{}
 	err := c.ShouldBindJSON(&p)
@@ -23,7 +23,7 @@ func Login(c *gin.Context) {
 }
 
 func Register(c *gin.Context) {
-	container := di.NewContainer()
+	container := di.GetContainer()
 	authService := container.GetAuthService()
 	p := auth.RegisterParams{}
 	err := c.ShouldBindJSON(&p)
